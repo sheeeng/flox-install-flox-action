@@ -23,6 +23,7 @@ jobs:
       matrix:
         os:
           - "ubuntu-latest"
+          - "ubuntu-slim"
           - "macos-latest"
 
     steps:
@@ -68,6 +69,7 @@ jobs:
       matrix:
         os:
           - "ubuntu-latest"
+          - "ubuntu-slim"
           - "macos-latest"
         release-env:
           - stable
@@ -84,10 +86,13 @@ jobs:
           channel: "${{ matrix.release-env }}"
           disable-metrics: true
 
-
-      - name: "Test: flox --version"
+      - name: "Test: flox"
         run: |
           flox --version
+          cd $(mktemp -d)
+          flox init
+          flox install hello
+          flox activate -- hello
 
       - name: "Test: flox config"
         run: |
@@ -106,6 +111,7 @@ jobs:
       matrix:
         os:
           - "ubuntu-latest"
+          - "ubuntu-slim"
           - "macos-latest"
 
     steps:
@@ -134,6 +140,14 @@ jobs:
           flox config --list | grep -q 'disable_metrics = true'
           flox config --list | grep -q 'upgrade_notifications = false'
 
+      - name: "Test: flox"
+        run: |
+          flox --version
+          cd $(mktemp -d)
+          flox init
+          flox install hello
+          flox activate -- hello
+
   test-existing-nix:
     name: "Test with Existing Nix (${{ matrix.nix-installer }})"
     runs-on: ${{ matrix.os }}
@@ -144,6 +158,7 @@ jobs:
       matrix:
         os:
           - "ubuntu-latest"
+          - "ubuntu-slim"
           - "macos-latest"
         nix-installer:
           - "determinate-systems"
@@ -156,12 +171,12 @@ jobs:
 
       - name: "Install Nix (DeterminateSystems)"
         if: matrix.nix-installer == 'determinate-systems'
-        uses: DeterminateSystems/nix-installer-action@430608d219b9321ec0c98eb6c37245a39aa6756e # main
+        uses: DeterminateSystems/nix-installer-action@00199f951aeb9404028a6e4b95ad42546f73296a # main
 
 
       - name: "Install Nix (Cachix)"
         if: matrix.nix-installer == 'cachix'
-        uses: cachix/install-nix-action@96951a368ba55167b55f1c916f7d416bac6505fe # v31
+        uses: cachix/install-nix-action@8aa03977d8d733052d78f4e008a241fd1dbf36b3 # v31
 
 
       - name: "Install Flox (using existing Nix)"
@@ -169,9 +184,13 @@ jobs:
         with:
           disable-metrics: true
 
-      - name: "Test: flox --version"
+      - name: "Test: flox"
         run: |
           flox --version
+          cd $(mktemp -d)
+          flox init
+          flox install hello
+          flox activate -- hello
 
       - name: "Test: flox config"
         run: |
@@ -213,7 +232,7 @@ jobs:
 
   report-failure:
     name: "Report Failure"
-    runs-on: "ubuntu-latest"
+    runs-on: "ubuntu-slim"
     timeout-minutes: 30
 
     if: ${{ failure() && github.ref == 'refs/heads/main' && (github.event_name == 'push' || github.event_name == 'schedule') }}

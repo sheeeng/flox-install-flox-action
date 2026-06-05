@@ -90,3 +90,15 @@ done
 if [[ -z "${PRESERVE_DOWNLOAD:-}" ]]; then
   rm "$DOWNLOADED_FILE"
 fi
+
+# In environments without systemd (e.g. ubuntu-slim containers), flox's
+# postinst falls back to single-user Nix but still chowns /nix to
+# root:nixbld, leaving the unprivileged runner user unable to access
+# /nix/var/nix/db. In single-user mode the current user must own /nix.
+# Detect systemd the same way flox's own postinst does: PID 1 is systemd.
+if [ "$(uname -s)" = "Linux" ] \
+   && [ "${EUID:-$(id -u)}" -ne 0 ] \
+   && [ "$(cat /proc/1/comm 2>/dev/null)" != "systemd" ]; then
+  echo "Single-user Nix detected (no systemd); taking ownership of /nix for uid=$(id -u)"
+  $SUDO chown -R "$(id -u):$(id -g)" /nix
+fi

@@ -73758,14 +73758,16 @@ async function run() {
     await captureOutputs(nixDetected)
     core.endGroup()
 
-    await writeJobSummary({
-      floxVersion: core.getInput('version') || '(latest)',
-      channel: core.getInput('channel') || 'stable',
-      method: nixDetected ? 'nix profile' : 'package',
-      platform: process.platform,
-      arch: process.arch,
-      nixDetected
-    })
+    if (core.getInput('write-summary') === 'true') {
+      await writeJobSummary({
+        floxVersion: core.getInput('version') || '(latest)',
+        channel: core.getInput('channel') || 'stable',
+        method: nixDetected ? 'nix profile' : 'package',
+        platform: process.platform,
+        arch: process.arch,
+        nixDetected
+      })
+    }
   } catch (error) {
     core.setFailed(error.message)
   }
