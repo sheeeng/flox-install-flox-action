@@ -73340,9 +73340,13 @@ function getCacheKey(downloadUrl) {
 }
 
 function getRestoreKeys(downloadUrl) {
+  if (!isVersionPinned()) {
+    return []
+  }
+
   const { os, arch, ext } = parsePlatformInfo(downloadUrl)
   const channel = core.getInput('channel') || 'stable'
-  const version = core.getInput('version') || 'latest'
+  const version = core.getInput('version')
 
   return [`install-flox/${channel}/${version}/${os}-${arch}-${ext}/`]
 }
@@ -73462,9 +73466,6 @@ async function getDownloadUrl() {
   if (core.getInput('version') !== '') {
     version = '-' + core.getInput('version')
   }
-
-  const disable_metrics = core.getInput('disable-metrics')
-  core.exportVariable('FLOX_DISABLE_METRICS', disable_metrics)
 
   const retries = core.getInput('retries') || '3'
   core.exportVariable('RETRIES', retries)
@@ -73711,7 +73712,9 @@ async function writeJobSummary({
 async function run() {
   try {
     const disable_metrics = core.getInput('disable-metrics')
-    core.exportVariable('FLOX_DISABLE_METRICS', disable_metrics)
+    if (disable_metrics !== '') {
+      core.exportVariable('FLOX_DISABLE_METRICS', disable_metrics)
+    }
 
     core.startGroup('Download & Install flox')
     const nix = await which('nix', { nothrow: true })
