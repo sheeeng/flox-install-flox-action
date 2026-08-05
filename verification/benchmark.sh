@@ -2,10 +2,10 @@
 # benchmark.sh - Compare installation times: DeterminateSystems vs Cachix vs Flox
 #
 # Usage:
-#   ./scripts/benchmark.sh              # run all benchmarks via act
-#   ./scripts/benchmark.sh act          # same (explicit)
-#   ./scripts/benchmark.sh docker       # use raw Docker containers
-#   ./scripts/benchmark.sh <job-name>   # run one: bench-determinate, bench-cachix,
+#   ./verification/benchmark.sh              # run all benchmarks via act
+#   ./verification/benchmark.sh act          # same (explicit)
+#   ./verification/benchmark.sh docker       # use raw Docker containers
+#   ./verification/benchmark.sh <job-name>   # run one: bench-determinate, bench-cachix,
 #                                       #          bench-flox, bench-flox-via-nix
 set -euo pipefail
 
